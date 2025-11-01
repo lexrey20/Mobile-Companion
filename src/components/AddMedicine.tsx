@@ -1,17 +1,17 @@
 import React from "react";
 import Header from "./Header";
 
-const Maintenance: React.FC = () => {
+const AddMedicine: React.FC = () => {
   return (
     <div className="flex flex-col w-full min-h-full bg-gray-100 pb-24">
-      <Header />
+      <Header title="Add Medicine" />
       <div className="flex flex-col items-center justify-start mt-6 w-full px-4">
         <p className="text-gray-600 text-lg text-center">
-          Your maintenance medicines will appear here.
+          Form to add medicine will appear here.
         </p>
       </div>
     </div>
   );
 };
 
-export default Maintenance;
+export default AddMedicine;

@@ -6,7 +6,7 @@ import { Pill, Syringe, HeartPulse } from "lucide-react";
 const Dashboard: React.FC = () => {
   return (
     <div className="flex flex-col w-full min-h-full bg-gray-100">
-      <Header />
+      <Header title="My Medications" />
 
       <div className="flex flex-col items-center mt-4 px-4 w-full pb-24">
         <MedicationCard

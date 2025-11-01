@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Dashboard from "../components/Dashboard";
-import Maintenance from "../components/Maintenance";
+import AddMedicine from "../components/AddMedicine";
 import Prescription from "../components/Prescription";
-import { Pill, ClipboardList, FileText } from "lucide-react";
+import { Plus, ClipboardList, FileText } from "lucide-react";
 
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -11,8 +11,8 @@ const Index: React.FC = () => {
     switch (activeTab) {
       case "dashboard":
         return <Dashboard />;
-      case "maintenance":
-        return <Maintenance />;
+      case "add-medicine":
+        return <AddMedicine />;
       case "prescription":
         return <Prescription />;
       default:
@@ -42,13 +42,13 @@ const Index: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab("maintenance")}
+            onClick={() => setActiveTab("add-medicine")}
             className={`flex flex-col items-center text-sm ${
-              activeTab === "maintenance" ? "text-blue-600" : "text-gray-500"
+              activeTab === "add-medicine" ? "text-blue-600" : "text-gray-500"
             }`}
           >
-            <Pill className="w-6 h-6 mb-1" />
-            Maintenance
+            <Plus className="w-6 h-6 mb-1" />
+            Add Medicine
           </button>
 
           <button
