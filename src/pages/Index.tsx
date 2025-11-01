@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Dashboard from "../components/Dashboard";
 import AddMedicine from "../components/AddMedicine";
-import Prescription from "../components/Prescription";
-import { Plus, ClipboardList, FileText } from "lucide-react";
+import CalendarView from "../components/CalendarView";
+import { Plus, ClipboardList, Calendar } from "lucide-react";
 
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -13,8 +13,8 @@ const Index: React.FC = () => {
         return <Dashboard />;
       case "add-medicine":
         return <AddMedicine />;
-      case "prescription":
-        return <Prescription />;
+      case "calendar":
+        return <CalendarView />;
       default:
         return <Dashboard />;
     }
@@ -52,13 +52,13 @@ const Index: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setActiveTab("prescription")}
+            onClick={() => setActiveTab("calendar")}
             className={`flex flex-col items-center text-sm ${
-              activeTab === "prescription" ? "text-blue-600" : "text-gray-500"
+              activeTab === "calendar" ? "text-blue-600" : "text-gray-500"
             }`}
           >
-            <FileText className="w-6 h-6 mb-1" />
-            Prescription
+            <Calendar className="w-6 h-6 mb-1" />
+            Calendar
           </button>
         </nav>
       </div>

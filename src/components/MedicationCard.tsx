@@ -64,13 +64,13 @@ const MedicationCard: React.FC<MedicationCardProps> = ({
       {status === "upcoming" && onTaken && (
         <Button
           onClick={onTaken}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base py-3"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base py-3 transition-all duration-300"
         >
           Mark as Taken
         </Button>
       )}
       {status === "taken" && (
-        <div className="w-full bg-green-600 text-white font-semibold text-base py-3 rounded-md text-center">
+        <div className="w-full bg-green-600 text-white font-semibold text-base py-3 rounded-md text-center animate-scale-in">
           ✓ Taken
         </div>
       )}
