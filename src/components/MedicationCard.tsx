@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Clock } from "lucide-react";
+import { MedicationType } from "@/context/MedicationsContext";
 
 interface MedicationCardProps {
   name: string;
@@ -8,6 +9,8 @@ interface MedicationCardProps {
   icon: React.ReactNode;
   time: string;
   status?: "upcoming" | "taken" | "missed";
+  specialInstructions?: string;
+  type: MedicationType;
   onTaken?: () => void;
 }
 
@@ -17,6 +20,8 @@ const MedicationCard: React.FC<MedicationCardProps> = ({
   icon,
   time,
   status = "upcoming",
+  specialInstructions,
+  type,
   onTaken,
 }) => {
   const getStatusColor = () => {
@@ -48,9 +53,17 @@ const MedicationCard: React.FC<MedicationCardProps> = ({
           <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
             {icon}
           </div>
-          <div>
+          <div className="flex flex-col">
             <h3 className="font-semibold text-gray-900 text-lg">{name}</h3>
             <p className="text-sm text-gray-600">{details}</p>
+            {specialInstructions && (
+              <p
+                className="text-xs text-gray-500 mt-2 whitespace-pre-wrap break-words"
+                title={specialInstructions}
+              >
+                {specialInstructions}
+              </p>
+            )}
           </div>
         </div>
         <div className="text-right">
@@ -70,7 +83,7 @@ const MedicationCard: React.FC<MedicationCardProps> = ({
         </Button>
       )}
       {status === "taken" && (
-        <div className="w-full bg-green-600 text-white font-semibold text-base py-3 rounded-md text-center animate-scale-in">
+        <div className="w-full bg-green-600 text-white font-semibold text-base py-3 rounded-md text-center">
           ✓ Taken
         </div>
       )}

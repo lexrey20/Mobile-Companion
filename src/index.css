@@ -102,4 +102,43 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Phone-style overlay scroll bar (doesn't push content) */
+  .scrollbar-phone {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(0, 0%, 80%) transparent;
+  }
+
+  /* Chrome, Edge, Safari */
+  .scrollbar-phone::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: transparent; /* makes it overlay */
+  }
+
+  .scrollbar-phone::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-phone::-webkit-scrollbar-thumb {
+    background-color: hsl(0, 0%, 80%);
+    border-radius: 3px;
+  }
+
+  .scrollbar-phone::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(0, 0%, 70%);
+  }
+
+    /* Hide scrollbar but still scrollable */
+  .scrollbar-hidden {
+    overflow-y: scroll; /* allow scrolling */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
+
 }
