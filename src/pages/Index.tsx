@@ -5,6 +5,7 @@ import AddMedicine from "../components/AddMedicine";
 import EditMedicine from "../components/EditMedicine";
 import CalendarView from "../components/CalendarView";
 import EmergencyContacts from "../components/EmergencyContacts";
+import Settings from "../components/Settings";
 import Header from "../components/Header";
 import { Plus, ClipboardList, Calendar, NotebookPen } from "lucide-react";
 import { Medication } from "@/context/MedicationsContext";
@@ -27,17 +28,18 @@ const Index: React.FC = () => {
         return "Calendar";
       case "contacts":
         return "Emergency Contacts";
+      case "settings":
+        return "Settings";
       default:
         return "";
     }
   };
 
-  const hideMainHeader = activeTab === "add-medicine" || activeTab === "edit-medicine";
+  const hideMainHeader = activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings";
 
-  // Handler for settings (you can implement this functionality)
+  // Handler for settings
   const handleSettings = () => {
-    console.log("Settings clicked");
-    // Add your settings logic here
+    setActiveTab("settings");
   };
 
   // Handler for add button in medication list
@@ -49,7 +51,7 @@ const Index: React.FC = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-200">
       <div className="relative w-[390px] h-[844px] bg-gray-100 rounded-[40px] shadow-2xl border-[10px] border-black overflow-hidden flex flex-col">
         
-        {/* Main Header with conditional icons */}
+        {/* Main Header with conditional icons - Don't show for settings */}
         {!hideMainHeader && (
           <Header 
             title={getHeaderTitle()} 
@@ -62,7 +64,7 @@ const Index: React.FC = () => {
 
         {/* Content */}
         <div className={`flex-grow w-full bg-gray-100 ${
-          activeTab === "add-medicine" || activeTab === "edit-medicine" 
+          activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings"
             ? "overflow-hidden" 
             : "overflow-y-auto"
         }`}>
@@ -94,10 +96,11 @@ const Index: React.FC = () => {
 
           {activeTab === "calendar" && <CalendarView />}
           {activeTab === "contacts" && <EmergencyContacts />}
+          {activeTab === "settings" && <Settings onBack={() => setActiveTab("dashboard")} />}
         </div>
 
         {/* Bottom Navigation */}
-        {activeTab !== "add-medicine" && activeTab !== "edit-medicine" && (
+        {activeTab !== "add-medicine" && activeTab !== "edit-medicine" && activeTab !== "settings" && (
           <nav className="absolute bottom-0 left-0 w-full bg-white shadow-lg rounded-t-2xl flex justify-around py-3 border-t border-gray-200 z-50">
             <button
               onClick={() => setActiveTab("dashboard")}

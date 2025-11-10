@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Header from "./Header";
 import {
   Select,
   SelectTrigger,
@@ -9,6 +8,7 @@ import {
 } from "./ui/select";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
+import { ArrowLeft, Bell, Palette, Moon, Languages } from "lucide-react";
 
 const themeColors = [
   { name: "Blue", class: "bg-blue-600", value: "blue" },
@@ -24,12 +24,22 @@ const notificationIntensities = [
   { label: "High", value: "high", description: "Loud vibration, frequent alerts" },
 ];
 
-const Settings: React.FC = () => {
-  const [language, setLanguage] = useState<string>("English");
+interface SettingsProps {
+  onBack?: () => void;
+}
+
+const Settings: React.FC<SettingsProps> = ({ onBack }) => {
+  const [language, setLanguage] = useState<string>("english");
   const [theme, setTheme] = useState<string>("blue");
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<boolean>(true);
   const [notificationIntensity, setNotificationIntensity] = useState<string>("normal");
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    }
+  };
 
   // Update primary theme color
   useEffect(() => {
@@ -56,104 +66,143 @@ const Settings: React.FC = () => {
     }
   }, [darkMode]);
 
+  const handleSaveSettings = () => {
+    // Save settings logic here
+    console.log("Settings saved:", {
+      language,
+      theme,
+      darkMode,
+      notifications,
+      notificationIntensity
+    });
+    if (onBack) {
+      onBack();
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-200 dark:bg-gray-900 transition-colors">
-      <div className="relative w-[390px] h-[844px] bg-white dark:bg-gray-800 rounded-[40px] shadow-2xl border-[10px] border-black overflow-hidden flex flex-col transition-colors">
-        <div className="flex-grow w-full overflow-y-auto pb-[80px]">
-          <Header title="Settings" backButton />
+    <div className="flex flex-col w-full h-full bg-gray-100 dark:bg-gray-900">
+      {/* Header */}
+      <div className="flex-shrink-0 w-full shadow-sm py-4 px-6 flex items-center gap-4 bg-blue-600 h-16">
+        <button 
+          onClick={handleBack}
+          className="text-white hover:bg-blue-700 p-1 rounded-full transition-colors"
+        >
+          <ArrowLeft className="w-6 h-6" />
+        </button>
+        <h1 className="text-xl font-bold text-white">Settings</h1>
+      </div>
 
-          <div className="flex flex-col items-center mt-6 w-full px-4 space-y-6">
-            <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 w-full">
-              App Settings
-            </h2>
-
-            {/* Language selector */}
-            <div className="w-full bg-white dark:bg-gray-700 rounded-2xl shadow-md p-4 space-y-2 transition-colors">
-              <label className="text-gray-700 dark:text-gray-200 font-medium text-base">
-                Language
-              </label>
-              <Select
-                value={language.toLowerCase()}
-                onValueChange={(val) =>
-                  setLanguage(val === "english" ? "English" : "Filipino")
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="english">English</SelectItem>
-                  <SelectItem value="filipino">Filipino</SelectItem>
-                </SelectContent>
-              </Select>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 pb-6">
+        <div className="space-y-4">
+          {/* Language selector */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <Languages className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200">Language</h3>
             </div>
+            <Select
+              value={language}
+              onValueChange={setLanguage}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="filipino">Filipino</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Theme color selector */}
-            <div className="w-full bg-white dark:bg-gray-700 rounded-2xl shadow-md p-4 space-y-2 transition-colors">
-              <label className="text-gray-700 dark:text-gray-200 font-medium text-base">
-                Theme Color
-              </label>
-              <div className="flex gap-3 mt-2">
-                {themeColors.map((color) => (
-                  <button
-                    key={color.value}
-                    className={`w-10 h-10 rounded-lg border-2 ${
-                      theme === color.value ? "border-black dark:border-white" : "border-gray-200"
-                    } ${color.class}`}
-                    onClick={() => setTheme(color.value)}
-                    aria-label={color.name}
-                  />
-                ))}
+          {/* Theme color selector */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <Palette className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200">Theme Color</h3>
+            </div>
+            <div className="flex gap-3 justify-center">
+              {themeColors.map((color) => (
+                <button
+                  key={color.value}
+                  className={`w-10 h-10 rounded-lg border-2 transition-transform ${
+                    theme === color.value 
+                      ? "border-black dark:border-white scale-110" 
+                      : "border-gray-300 dark:border-gray-600 hover:scale-105"
+                  } ${color.class}`}
+                  onClick={() => setTheme(color.value)}
+                  aria-label={color.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Dark mode switch */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Moon className="w-5 h-5 text-blue-600" />
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">Dark Mode</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Switch between light and dark theme</p>
+                </div>
               </div>
-            </div>
-
-            {/* Dark mode switch */}
-            <div className="w-full bg-white dark:bg-gray-700 rounded-2xl shadow-md p-4 flex justify-between items-center transition-colors">
-              <span className="text-gray-700 dark:text-gray-200 font-medium text-base">
-                Dark Mode
-              </span>
               <Switch checked={darkMode} onCheckedChange={setDarkMode} />
             </div>
-
-            {/* Notifications toggle */}
-            <div className="w-full bg-white dark:bg-gray-700 rounded-2xl shadow-md p-4 flex justify-between items-center transition-colors">
-              <span className="text-gray-700 dark:text-gray-200 font-medium text-base">
-                Notifications
-              </span>
-              <Switch
-                checked={notifications}
-                onCheckedChange={setNotifications}
-              />
-            </div>
-
-            {/* Notification Intensity */}
-            {notifications && (
-              <div className="w-full bg-white dark:bg-gray-700 rounded-2xl shadow-md p-4 space-y-2 transition-colors">
-                <label className="text-gray-700 dark:text-gray-200 font-medium text-base">
-                  Notification Intensity
-                </label>
-                <Select
-                  value={notificationIntensity}
-                  onValueChange={setNotificationIntensity}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select intensity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {notificationIntensities.map((i) => (
-                      <SelectItem key={i.value} value={i.value}>
-                        {i.label} - <span className="text-gray-500 dark:text-gray-300 text-xs">{i.description}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-4">
-              Save Settings
-            </Button>
           </div>
+
+          {/* Notifications toggle */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 transition-colors">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="w-5 h-5 text-blue-600" />
+                <div>
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200">Notifications</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">Enable or disable app notifications</p>
+                </div>
+              </div>
+              <Switch checked={notifications} onCheckedChange={setNotifications} />
+            </div>
+          </div>
+
+          {/* Notification Intensity */}
+          {notifications && (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <Bell className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800 dark:text-gray-200">Notification Intensity</h3>
+            </div>
+            <Select
+              value={notificationIntensity}
+              onValueChange={setNotificationIntensity}
+            >
+              <SelectTrigger className="w-full text-left">
+                <SelectValue placeholder="Select intensity" />
+              </SelectTrigger>
+              <SelectContent>
+                {notificationIntensities.map((intensity) => (
+                  <SelectItem key={intensity.value} value={intensity.value} className="text-left">
+                    <div className="flex flex-col items-start">
+                      <span className="font-medium">{intensity.label}</span>
+                      <span className="text-gray-500 dark:text-gray-400 text-xs">
+                        {intensity.description}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+          {/* Save Button */}
+          <Button 
+            onClick={handleSaveSettings}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-3 mt-4"
+          >
+            Save Settings
+          </Button>
         </div>
       </div>
     </div>

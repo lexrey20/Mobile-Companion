@@ -29,8 +29,12 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleSettings = () => {
-    if (onSettings) onSettings();
-    // You can add default settings behavior here if needed
+    if (onSettings) {
+      onSettings();
+    } else {
+      // Default behavior: navigate to settings
+      navigate("/Settings");
+    }
   };
 
   const handleAdd = () => {
