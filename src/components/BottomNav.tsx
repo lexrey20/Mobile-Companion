@@ -11,7 +11,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {
     { id: "dashboard", label: "Dashboard", icon: <Home size={22} /> },
     { id: "maintenance", label: "Maintenance", icon: <Wrench size={22} /> },
     { id: "prescription", label: "Prescription", icon: <Pill size={22} /> },
-    { id: "contacts", label: "Contacts", icon: <NotebookPen size={22} /> }, // 🆕 NEW TAB
+    { id: "contacts", label: "Contacts", icon: <NotebookPen size={22} /> },
   ];
 
   return (

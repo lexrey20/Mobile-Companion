@@ -6,13 +6,15 @@ import EditMedicine from "../components/EditMedicine";
 import CalendarView from "../components/CalendarView";
 import EmergencyContacts from "../components/EmergencyContacts";
 import Settings from "../components/Settings";
+import HeartRateReport from "../components/HeartRateReport";
 import Header from "../components/Header";
-import { Plus, ClipboardList, Calendar, NotebookPen } from "lucide-react";
+import { Pill, Calendar, ClipboardList, PieChart, NotebookPen } from "lucide-react";
 import { Medication } from "@/context/MedicationsContext";
 
 const Index: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
+  const [showHeartRateReport, setShowHeartRateReport] = useState(false);
 
   const getHeaderTitle = () => {
     switch (activeTab) {
@@ -30,12 +32,14 @@ const Index: React.FC = () => {
         return "Emergency Contacts";
       case "settings":
         return "Settings";
+      case "heart-rate-report":
+        return "Heart Rate Report";
       default:
         return "";
     }
   };
 
-  const hideMainHeader = activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings";
+  const hideMainHeader = activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings" || activeTab === "heart-rate-report";
 
   // Handler for settings
   const handleSettings = () => {
@@ -45,6 +49,16 @@ const Index: React.FC = () => {
   // Handler for add button in medication list
   const handleAddFromHeader = () => {
     setActiveTab("add-medicine");
+  };
+
+  // Handler for heart rate click
+  const handleHeartRateClick = () => {
+    setActiveTab("heart-rate-report");
+  };
+
+  // Handler for back from heart rate report
+  const handleHeartRateBack = () => {
+    setActiveTab("dashboard");
   };
 
   return (
@@ -64,11 +78,13 @@ const Index: React.FC = () => {
 
         {/* Content */}
         <div className={`flex-grow w-full bg-gray-100 ${
-          activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings"
+          activeTab === "add-medicine" || activeTab === "edit-medicine" || activeTab === "settings" || activeTab === "heart-rate-report"
             ? "overflow-hidden" 
             : "overflow-y-auto"
         }`}>
-          {activeTab === "dashboard" && <Dashboard />}
+          {activeTab === "dashboard" && (
+            <Dashboard onHeartRateClick={handleHeartRateClick} />
+          )}
 
           {activeTab === "medicine-list" && (
             <MedicationList
@@ -97,10 +113,13 @@ const Index: React.FC = () => {
           {activeTab === "calendar" && <CalendarView />}
           {activeTab === "contacts" && <EmergencyContacts />}
           {activeTab === "settings" && <Settings onBack={() => setActiveTab("dashboard")} />}
+          {activeTab === "heart-rate-report" && (
+            <HeartRateReport onBack={handleHeartRateBack} />
+          )}
         </div>
 
         {/* Bottom Navigation */}
-        {activeTab !== "add-medicine" && activeTab !== "edit-medicine" && activeTab !== "settings" && (
+        {activeTab !== "add-medicine" && activeTab !== "edit-medicine" && activeTab !== "settings" && activeTab !== "heart-rate-report" && (
           <nav className="absolute bottom-0 left-0 w-full bg-white shadow-lg rounded-t-2xl flex justify-around py-3 border-t border-gray-200 z-50">
             <button
               onClick={() => setActiveTab("dashboard")}
@@ -114,7 +133,7 @@ const Index: React.FC = () => {
               onClick={() => setActiveTab("medicine-list")}
               className={`flex flex-col items-center text-sm ${activeTab === "medicine-list" ? "text-blue-600" : "text-gray-500"}`}
             >
-              <Plus className="w-6 h-6 mb-1" />
+              <Pill className="w-6 h-6 mb-1" />
               Medications
             </button>
 
