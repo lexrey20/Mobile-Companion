@@ -1,6 +1,6 @@
 // components/HeartRateReport.tsx
-import React from "react";
-import { ArrowLeft, Activity, Share2, TrendingUp, Clock } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { ArrowLeft, Activity, Share2, TrendingUp, Clock, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface HeartRateReportProps {
   onBack?: () => void;
@@ -74,39 +74,116 @@ const HeartRateTrendChart: React.FC<{ data: { day: string; average: number }[] }
 };
 
 const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
-  // Mock data for the report
-  const heartRateData = {
-    current: 72,
-    average: 68,
-    min: 62,
-    max: 85,
-    resting: 65,
-    variability: 42,
-    zones: {
-      rest: 35,
-      light: 45,
-      moderate: 15,
-      intense: 5
-    },
-    todayHistory: [
-      { time: "8 AM", bpm: 65 },
-      { time: "10 AM", bpm: 72 },
-      { time: "12 PM", bpm: 78 },
-      { time: "2 PM", bpm: 75 },
-      { time: "4 PM", bpm: 70 },
-      { time: "6 PM", bpm: 68 },
-      { time: "8 PM", bpm: 65 },
-    ],
-    weeklyTrend: [
-      { day: "Mon", average: 66 },
-      { day: "Tue", average: 68 },
-      { day: "Wed", average: 70 },
-      { day: "Thu", average: 67 },
-      { day: "Fri", average: 72 },
-      { day: "Sat", average: 69 },
-      { day: "Sun", average: 65 },
-    ]
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  
+  // Generate consistent mock data using useMemo
+  const { dateData, dates } = useMemo(() => {
+    const formatDateDisplay = (date: Date) => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      if (date.toDateString() === today.toDateString()) return "Today";
+      if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+      
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+
+    const formatDateKey = (date: Date) => {
+      return date.toISOString().split('T')[0];
+    };
+
+    const generateConsistentData = (date: Date, seed: number) => {
+      // Use consistent base values for each day
+      const baseValues = [68, 72, 65, 70, 74, 69, 71, 67]; // Fixed base BPM values for 8 days
+      const baseBpm = baseValues[seed] || 68;
+      
+      const isToday = date.toDateString() === new Date().toDateString();
+      const current = isToday ? 72 : baseBpm;
+      
+      // Calculate consistent derived values
+      const average = baseBpm;
+      const min = baseBpm - 6;
+      const max = baseBpm + 17;
+      
+      // Consistent history pattern for each day
+      const history = [
+        { time: "6AM", bpm: baseBpm - 3 },
+        { time: "8AM", bpm: baseBpm + 4 },
+        { time: "10AM", bpm: baseBpm + 10 },
+        { time: "12PM", bpm: baseBpm + 7 },
+        { time: "2PM", bpm: baseBpm + 2 },
+        { time: "4PM", bpm: baseBpm - 1 },
+        { time: "6PM", bpm: baseBpm - 2 },
+        { time: "8PM", bpm: baseBpm - 3 },
+      ];
+
+      // Consistent zones based on base BPM
+      const getZones = (bpm: number) => {
+        if (bpm < 68) return { rest: 40, light: 40, moderate: 15, intense: 5 };
+        if (bpm < 72) return { rest: 35, light: 45, moderate: 15, intense: 5 };
+        return { rest: 30, light: 45, moderate: 20, intense: 5 };
+      };
+
+      return {
+        date: formatDateDisplay(date),
+        current: current,
+        average: average,
+        min: min,
+        max: max,
+        resting: baseBpm - 3,
+        variability: 35 + (seed * 2),
+        zones: getZones(baseBpm),
+        history: history
+      };
+    };
+
+    // Generate dates for the past 7 days (only backward)
+    const dates = [];
+    for (let i = 0; i <= 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      dates.push(date);
+    }
+    dates.reverse(); // Oldest to newest
+
+    // Create consistent data for all dates
+    const dateData: { [key: string]: any } = {};
+    dates.forEach((date, index) => {
+      dateData[formatDateKey(date)] = generateConsistentData(date, index);
+    });
+
+    return { dateData, dates };
+  }, []);
+
+  const currentDateIndex = dates.findIndex(date => 
+    date.toDateString() === selectedDate.toDateString()
+  );
+
+  const formatDateKey = (date: Date) => {
+    return date.toISOString().split('T')[0];
   };
+
+  const currentData = dateData[formatDateKey(selectedDate)];
+
+  const navigateDate = (direction: 'prev' | 'next') => {
+    const newIndex = direction === 'prev' ? currentDateIndex - 1 : currentDateIndex + 1;
+    if (newIndex >= 0 && newIndex < dates.length) {
+      setSelectedDate(dates[newIndex]);
+    }
+  };
+
+  // Generate weekly trend from dateData
+  const weeklyTrend = useMemo(() => {
+    return dates.map(date => {
+      const data = dateData[formatDateKey(date)];
+      const dayAbbr = date.toLocaleDateString('en-US', { weekday: 'short' });
+      return {
+        day: dayAbbr,
+        average: data.average
+      };
+    });
+  }, [dates, dateData]);
 
   return (
     <div className="flex flex-col w-full h-full bg-gray-100">
@@ -123,6 +200,53 @@ const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 pb-6">
+        {/* Date Navigation */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => navigateDate('prev')}
+              disabled={currentDateIndex === 0}
+              className="p-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-blue-600" />
+              <h3 className="font-semibold text-gray-800 text-center">
+                {currentData.date}
+              </h3>
+            </div>
+
+            <button
+              onClick={() => navigateDate('next')}
+              disabled={currentDateIndex === dates.length - 1}
+              className="p-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Date Indicator */}
+          <div className="flex justify-center items-center gap-2">
+            <div className="flex gap-1">
+              {dates.map((date, index) => (
+                <div
+                  key={formatDateKey(date)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentDateIndex 
+                      ? "bg-blue-600" 
+                      : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-gray-500 ml-2">
+              {currentDateIndex + 1} of {dates.length}
+            </span>
+          </div>
+        </div>
+
         {/* Current Stats */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
           <div className="flex items-center gap-3 mb-4">
@@ -131,21 +255,21 @@ const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
           </div>
           
           <div className="text-center mb-4">
-            <div className="text-4xl font-bold text-gray-800">{heartRateData.current}</div>
+            <div className="text-4xl font-bold text-gray-800">{currentData.current}</div>
             <div className="text-gray-500">BPM</div>
           </div>
 
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-lg font-semibold text-gray-800">{heartRateData.average}</div>
+              <div className="text-lg font-semibold text-gray-800">{currentData.average}</div>
               <div className="text-xs text-gray-500">Average</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-gray-800">{heartRateData.min}</div>
+              <div className="text-lg font-semibold text-gray-800">{currentData.min}</div>
               <div className="text-xs text-gray-500">Min</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-gray-800">{heartRateData.max}</div>
+              <div className="text-lg font-semibold text-gray-800">{currentData.max}</div>
               <div className="text-xs text-gray-500">Max</div>
             </div>
           </div>
@@ -155,10 +279,10 @@ const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
         <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
           <div className="flex items-center gap-3 mb-2">
             <Clock className="w-5 h-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-800">Today's Heart Rate</h3>
+            <h3 className="font-semibold text-gray-800">Daily Heart Rate</h3>
           </div>
           <p className="text-gray-600 text-sm mb-3">Your heart rate throughout the day</p>
-          <HeartRateBarChart data={heartRateData.todayHistory} />
+          <HeartRateBarChart data={currentData.history} />
           
           <div className="flex justify-center gap-4 mt-3 text-xs">
             <div className="flex items-center gap-1">
@@ -183,7 +307,7 @@ const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
             <h3 className="font-semibold text-gray-800">Weekly Trend</h3>
           </div>
           <p className="text-gray-600 text-sm mb-3">7-day average heart rate</p>
-          <HeartRateTrendChart data={heartRateData.weeklyTrend} />
+          <HeartRateTrendChart data={weeklyTrend} />
         </div>
 
         {/* Additional Metrics */}
@@ -193,51 +317,91 @@ const HeartRateReport: React.FC<HeartRateReportProps> = ({ onBack }) => {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Resting Zone</span>
-                <span className="font-semibold">{heartRateData.zones.rest}%</span>
+                <span className="font-semibold">{currentData.zones.rest}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-green-400 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${heartRateData.zones.rest}%` }}
+                  style={{ width: `${currentData.zones.rest}%` }}
                 ></div>
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Light Activity</span>
-                <span className="font-semibold">{heartRateData.zones.light}%</span>
+                <span className="font-semibold">{currentData.zones.light}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-yellow-400 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${heartRateData.zones.light}%` }}
+                  style={{ width: `${currentData.zones.light}%` }}
                 ></div>
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Moderate Activity</span>
-                <span className="font-semibold">{heartRateData.zones.moderate}%</span>
+                <span className="font-semibold">{currentData.zones.moderate}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-orange-400 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${heartRateData.zones.moderate}%` }}
+                  style={{ width: `${currentData.zones.moderate}%` }}
                 ></div>
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600">Intense Activity</span>
-                <span className="font-semibold">{heartRateData.zones.intense}%</span>
+                <span className="font-semibold">{currentData.zones.intense}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className="bg-red-400 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${heartRateData.zones.intense}%` }}
+                  style={{ width: `${currentData.zones.intense}%` }}
                 ></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Past Days Summary */}
+        <div className="bg-white rounded-xl shadow-sm p-4 mb-4">
+          <div className="flex items-center gap-3 mb-3">
+            <TrendingUp className="w-5 h-5 text-green-600" />
+            <h3 className="font-semibold text-gray-800">Past Week</h3>
+          </div>
+          <div className="space-y-2">
+            {dates.map(date => {
+              const data = dateData[formatDateKey(date)];
+              const isSelected = date.toDateString() === selectedDate.toDateString();
+              const getStatusColor = (bpm: number) => {
+                if (bpm > 80) return "text-red-600 bg-red-50";
+                if (bpm > 70) return "text-yellow-600 bg-yellow-50";
+                return "text-green-600 bg-green-50";
+              };
+              
+              return (
+                <div 
+                  key={formatDateKey(date)} 
+                  className={`flex items-center justify-between py-2 px-3 rounded-lg border transition-colors ${
+                    isSelected ? 'border-blue-300 bg-blue-50' : 'border-gray-200'
+                  }`}
+                >
+                  <span className={`font-medium ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}>
+                    {data.date}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`font-semibold ${isSelected ? 'text-blue-700' : 'text-gray-800'}`}>
+                      {data.average}
+                    </span>
+                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(data.average)}`}>
+                      BPM
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
