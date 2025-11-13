@@ -170,7 +170,7 @@ const Index: React.FC = () => {
               onClick={() => setActiveTab("calendar")}
               className={`flex flex-col items-center text-sm ${activeTab === "calendar" ? "text-blue-600" : "text-gray-500"}`}
             >
-              <PieChart className="w-6 h-6 mb-1" />
+              <Calendar className="w-6 h-6 mb-1" />
               Calendar
             </button>
 
